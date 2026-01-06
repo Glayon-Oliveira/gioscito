@@ -1,5 +1,6 @@
 package com.lmlasmo.gioscito.model.schema.validation;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.springframework.stereotype.Component;
@@ -26,16 +27,47 @@ public class StructReferenceValidator implements SchemaValidator {
 		componentSchemas.forEach(c -> {
 			c.getFields().forEach(f -> {
 					if(f.getType() instanceof StructFieldType structType) {
-						boolean exists = structSchemas.stream()
-								.map(ComponentSchema::getName)
-								.anyMatch(structType.getStructName()::equals);
+						StructSchema struct = structSchemas.stream()
+								.filter(s -> s.getName().equals(structType.getStructName()))
+								.findFirst()
+								.orElse(null);
 						
-						if(!exists) {
+						if(struct == null) {
 							throw new SchemaValidationException("Struct '" + structType.getStructName() + "' not exists");
+						}else {
+							validateNoCicle(struct, structSchemas);
 						}
 					}
 				});
-			});	
+			});
+	}
+	
+	private void validateNoCicle(StructSchema structSchema, Set<StructSchema> structSchemas) {
+		validateNoCicle(structSchema, structSchemas, null);
+	}
+	
+	private void validateNoCicle(StructSchema structSchema, Set<StructSchema> structSchemas, Set<String> visitedStructs) {
+		Set<String> visited = (visitedStructs == null) ? new LinkedHashSet<>() : visitedStructs;
+		
+		visited.add(structSchema.getName());
+		
+		structSchema.getFields().forEach(f -> {
+			if(f.getType() instanceof StructFieldType structType) {
+				StructSchema subStruct = structSchemas.stream()
+						.filter(s -> s.getName().equals(structType.getStructName()))
+						.findFirst()
+						.orElse(null);
+				
+				if(subStruct == null) return;
+				
+				if(visited.contains(subStruct.getName())) {
+					String first = visited.stream().findFirst().get();
+					throw new SchemaValidationException("Cicle reference of structs in begin " + first + " and end " + subStruct.getName());
+				}else {
+					validateNoCicle(subStruct, structSchemas, visited);
+				}
+			}
+		});
 	}
 
 }
