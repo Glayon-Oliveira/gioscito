@@ -4,28 +4,36 @@ import java.util.Collection;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 @Getter
+@ToString
 @EqualsAndHashCode
-@RequiredArgsConstructor
 public class MaxFieldConstraint implements FieldConstraint {
 
 	private final FieldConstraintType constraint = FieldConstraintType.MAX;
-	
-	@NonNull
+		
 	@EqualsAndHashCode.Exclude	
 	private final Long max;
+	
+	public MaxFieldConstraint(Long max) {
+		this.max = max != null ? max : Long.MAX_VALUE;
+	}
 	
 	public void valid(Object value) {
 		if(max == null) return;
 		
-		if(value instanceof Long valueNumber) {
-			if(valueNumber > max) throw new ConstraintViolationException("Value '" + valueNumber + "' is greater than " + max);
+		if(value instanceof Number numberValue) {
+			try {
+				if(Long.parseLong(numberValue.toString()) > max) {
+					throw new ConstraintViolationException("Value '" + value + "' is greater than " + max);
+				}
+			}catch(Exception e) {
+				throw new ValueTypeViolationException("Type of value '" + value + "' must be long integer");
+			}
 		}else if(value instanceof Collection<?> valueCollection) {
 			valueCollection.stream()
-					.forEach(this::valid);
+				.forEach(this::valid);
 		}
 	}
 	

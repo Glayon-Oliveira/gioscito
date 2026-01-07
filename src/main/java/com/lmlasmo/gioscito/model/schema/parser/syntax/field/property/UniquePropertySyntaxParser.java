@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.lmlasmo.gioscito.model.schema.field.property.UniqueProperty;
 import com.lmlasmo.gioscito.model.schema.field.type.FieldType;
+import com.lmlasmo.gioscito.model.schema.parser.ValueParserException;
 
 import lombok.EqualsAndHashCode;
 
@@ -27,7 +28,7 @@ public class UniquePropertySyntaxParser implements FieldPropertySyntaxParser<Uni
 		if(value instanceof Boolean unique) {
 			return new UniqueProperty(unique);
 		}else {
-			throw new IllegalArgumentException("Property 'unique' must be boolean value");
+			throw new ValueParserException("Property 'unique' must be boolean value");
 		}
 	}
 

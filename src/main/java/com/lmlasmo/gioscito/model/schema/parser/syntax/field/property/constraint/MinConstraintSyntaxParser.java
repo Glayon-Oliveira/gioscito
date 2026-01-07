@@ -10,6 +10,7 @@ import com.lmlasmo.gioscito.model.schema.field.property.constraint.MinFieldConst
 import com.lmlasmo.gioscito.model.schema.field.type.ArrayFieldType;
 import com.lmlasmo.gioscito.model.schema.field.type.FieldType;
 import com.lmlasmo.gioscito.model.schema.field.type.NumberFieldType;
+import com.lmlasmo.gioscito.model.schema.parser.ValueParserException;
 
 @Component
 public class MinConstraintSyntaxParser implements FieldConstraintSyntaxParser {
@@ -26,14 +27,11 @@ public class MinConstraintSyntaxParser implements FieldConstraintSyntaxParser {
 		String inner = raw.substring("min(".length(), raw.length()-1);
 		inner = inner.replaceAll("\\s*", "");
 		
-		String[] parts = inner.split(",");
-		
 		try {
-			Long min = Long.parseLong(parts[0]);
-			
+			Long min = Long.parseLong(inner);
 			return new MinFieldConstraint(min);
 		}catch(Exception e) {
-			throw new RuntimeException("Min value '" + raw + "' is not supported. Min must be number");
+			throw new ValueParserException("Min value '" + raw + "' is not supported. Min must be number");
 		}
 	}
 

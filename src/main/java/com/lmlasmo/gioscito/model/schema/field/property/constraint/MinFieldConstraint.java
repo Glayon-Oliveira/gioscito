@@ -24,8 +24,14 @@ public class MinFieldConstraint implements FieldConstraint {
 	public void valid(Object value) {
 		if(min == null) return;
 		
-		if(value instanceof Long valueNumber) {
-			if(valueNumber < min) throw new ConstraintViolationException("Value '" + valueNumber + "' is less than " + min);
+		if(value instanceof Number numberValue) {
+			try {
+				if(Long.parseLong(numberValue.toString()) < min) {
+					throw new ConstraintViolationException("Value '" + value + "' is less than " + min);
+				}
+			}catch(Exception e) {
+				throw new ValueTypeViolationException("Type of value '" + value + "' must be long integer");
+			}
 		}else if(value instanceof Collection<?> valueCollection) {
 			valueCollection.stream()
 				.forEach(this::valid);

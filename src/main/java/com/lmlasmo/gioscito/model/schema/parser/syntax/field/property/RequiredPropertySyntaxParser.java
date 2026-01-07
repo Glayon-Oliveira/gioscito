@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.lmlasmo.gioscito.model.schema.field.property.RequiredProperty;
 import com.lmlasmo.gioscito.model.schema.field.type.FieldType;
+import com.lmlasmo.gioscito.model.schema.parser.ValueParserException;
 
 import lombok.EqualsAndHashCode;
 
@@ -27,7 +28,7 @@ public class RequiredPropertySyntaxParser implements FieldPropertySyntaxParser<R
 		if(value instanceof Boolean required) {
 			return new RequiredProperty(required);
 		}else {
-			throw new IllegalArgumentException("Property 'required' must be boolean value");
+			throw new ValueParserException("Property 'required' must be boolean value");
 		}
 	}
 	

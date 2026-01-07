@@ -21,7 +21,8 @@ public class EnumTypeSyntaxParser implements FieldTypeSyntaxParser {
 
 	@Override
 	public FieldType parse(String raw) {
-		String trimmed = raw.trim();
+		String inner = raw.substring("enum(".length(), raw.length()-1);
+		String trimmed = inner.trim();
 
 	    Set<String> values = new HashSet<>();
 	    StringBuilder current = new StringBuilder();

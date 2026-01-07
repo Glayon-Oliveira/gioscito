@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
 
 import com.lmlasmo.gioscito.model.schema.field.property.constraint.FieldConstraint;
-import com.lmlasmo.gioscito.model.schema.field.property.constraint.MinFieldConstraint;
+import com.lmlasmo.gioscito.model.schema.field.property.constraint.MaxFieldConstraint;
 import com.lmlasmo.gioscito.model.schema.field.type.ArrayFieldType;
 import com.lmlasmo.gioscito.model.schema.field.type.FieldType;
 import com.lmlasmo.gioscito.model.schema.field.type.NumberFieldType;
@@ -27,12 +27,9 @@ public class MaxConstraintSyntaxParser implements FieldConstraintSyntaxParser {
 		String inner = raw.substring("max(".length(), raw.length()-1);
 		inner = inner.replaceAll("\\s*", "");
 		
-		String[] parts = inner.split(",");
-		
 		try {
-			Long max = Long.parseLong(parts[0]);
-			
-			return new MinFieldConstraint(max);
+			Long max = Long.parseLong(inner);
+			return new MaxFieldConstraint(max);
 		}catch(Exception e) {
 			throw new ValueParserException("Max value '" + raw + "'is not supported. Max must be number");
 		}
@@ -43,7 +40,7 @@ public class MaxConstraintSyntaxParser implements FieldConstraintSyntaxParser {
 		if(fieldType instanceof ArrayFieldType arrayType) {
 			return defaultConstraint(arrayType);
 		}else if(supports(fieldType)) {
-			new MinFieldConstraint(Long.MIN_VALUE);
+			new MaxFieldConstraint(Long.MIN_VALUE);
 		}
 		
 		return null;

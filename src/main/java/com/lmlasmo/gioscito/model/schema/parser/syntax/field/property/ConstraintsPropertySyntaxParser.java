@@ -2,7 +2,6 @@ package com.lmlasmo.gioscito.model.schema.parser.syntax.field.property;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Component;
 import com.lmlasmo.gioscito.model.schema.field.property.ConstraintsProperty;
 import com.lmlasmo.gioscito.model.schema.field.property.constraint.FieldConstraint;
 import com.lmlasmo.gioscito.model.schema.field.type.FieldType;
+import com.lmlasmo.gioscito.model.schema.parser.ValueParserException;
 import com.lmlasmo.gioscito.model.schema.parser.syntax.field.property.constraint.FieldConstraintSyntaxParser;
 
 import lombok.EqualsAndHashCode;
@@ -34,17 +34,13 @@ public class ConstraintsPropertySyntaxParser implements FieldPropertySyntaxParse
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public ConstraintsProperty parse(Object property, FieldType fieldType) {
-		if(property == null) {
-			throw new IllegalArgumentException("Property cannot be null");
-		}
-		
-		if(property instanceof Collection constraints) {
-			Set<FieldConstraint> fieldConstraints = parse((Collection<String>) constraints, fieldType);
+	public ConstraintsProperty parse(Object property, FieldType fieldType) {		
+		if(property instanceof Collection || property == null) {
+			Set<FieldConstraint> fieldConstraints = parse((Collection<String>) property, fieldType);
 			
 			return new ConstraintsProperty(fieldConstraints);
 		}else {
-			throw new IllegalArgumentException("Property 'constraints' must be " + Map.class);
+			throw new ValueParserException("Property 'constraints' must be " + property.getClass());
 		}
 	}
 	

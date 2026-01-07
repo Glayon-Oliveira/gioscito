@@ -19,11 +19,10 @@ public class FieldPropertyParser {
 
 	@NonNull private Set<FieldPropertySyntaxParser<?>> fieldPropertyParsers;
 	
-	public Set<FieldProperty<?>> parse(Map<String, Object> constraints, FieldType fieldType) {
-		
+	public Set<FieldProperty<?>> parse(Map<String, Object> propertiesMap, FieldType fieldType) {
 		Set<FieldProperty<?>> properties = new HashSet<>();
 		
-		constraints.forEach((k, v) -> {
+		propertiesMap.forEach((k, v) -> {
 			if(k.equals("type")) return;
 			
 			FieldProperty<?> property = fieldPropertyParsers.stream()
@@ -34,6 +33,12 @@ public class FieldPropertyParser {
 			
 			properties.add(property);
 		});
+		
+		fieldPropertyParsers.stream()
+			.filter(FieldPropertySyntaxParser::isGenericProperty)
+			.filter(p -> propertiesMap.keySet().stream().noneMatch(p::matches))
+			.map(p -> p.parse(null, fieldType))
+			.forEach(properties::add);
 		
 		return properties;
 	}

@@ -1,5 +1,6 @@
 package com.lmlasmo.gioscito.model.schema.parser;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -56,8 +57,9 @@ public class FieldParser {
 		}
 		
 		FieldType fieldType = fieldTypeParser.parse(fieldRaw);
+		Set<FieldProperty<?>> properties = fieldPropertyParser.parse(new HashMap<>(), fieldType);
 		
-		return new FieldSchema(fieldName, fieldType, Set.of());
+		return new FieldSchema(fieldName, fieldType, properties);
 	}
 	
 	private FieldSchema parseMap(String fieldName, Map<String, Object> fieldMap) {
