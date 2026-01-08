@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.lmlasmo.gioscito.model.schema.ComponentSchema;
 import com.lmlasmo.gioscito.model.schema.FullSchema;
 import com.lmlasmo.gioscito.model.schema.StructSchema;
+import com.lmlasmo.gioscito.model.schema.field.type.ArrayFieldType;
 import com.lmlasmo.gioscito.model.schema.field.type.StructFieldType;
 
 @Component
@@ -27,19 +28,26 @@ public class StructReferenceValidator implements SchemaValidator {
 		componentSchemas.forEach(c -> {
 			c.getFields().forEach(f -> {
 					if(f.getType() instanceof StructFieldType structType) {
-						StructSchema struct = structSchemas.stream()
-								.filter(s -> s.getName().equals(structType.getStructName()))
-								.findFirst()
-								.orElse(null);
-						
-						if(struct == null) {
-							throw new SchemaValidationException("Struct '" + structType.getStructName() + "' not exists");
-						}else {
-							validateNoCicle(struct, structSchemas);
-						}
+						validate(structType.getStructName(), structSchemas);
+					}else if(f.getType() instanceof ArrayFieldType arrayType 
+							&& arrayType.getSubType() instanceof StructFieldType structType) {
+						validate(structType.getStructName(), structSchemas);
 					}
 				});
 			});
+	}
+	
+	private void validate(String structName, Set<StructSchema> structSchemas) {
+		StructSchema struct = structSchemas.stream()
+				.filter(s -> s.getName().equals(structName))
+				.findFirst()
+				.orElse(null);
+		
+		if(struct == null) {
+			throw new SchemaValidationException("Struct '" + structName + "' not exists");
+		}else {
+			validateNoCicle(struct, structSchemas);
+		}
 	}
 	
 	private void validateNoCicle(StructSchema structSchema, Set<StructSchema> structSchemas) {
