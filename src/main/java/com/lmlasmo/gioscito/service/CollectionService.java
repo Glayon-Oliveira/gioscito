@@ -11,6 +11,7 @@ import com.lmlasmo.gioscito.content.validation.schema.ContentValidationException
 import com.lmlasmo.gioscito.content.validation.schema.ValidationStatus;
 import com.lmlasmo.gioscito.data.dao.FindControl;
 import com.lmlasmo.gioscito.data.dao.Where;
+import com.lmlasmo.gioscito.data.validation.CollectionDataValidator;
 import com.lmlasmo.gioscito.service.data.CollectionDataServiceGroup;
 
 import lombok.EqualsAndHashCode;
@@ -28,7 +29,8 @@ public class CollectionService {
 	@Getter private final String collectionName;
 	
 	private final CollectionValidator collectionValidator;
-	private final CollectionNormalizer collectionNormalizer;
+	private final CollectionDataValidator collectionDataValidator;
+	private final CollectionNormalizer collectionNormalizer;	
 	private final CollectionDataServiceGroup dataServices;
 	
 	public Mono<Map<String, Object>> runCreate(Map<String, Object> createMap) {
@@ -45,7 +47,11 @@ public class CollectionService {
 		
 		normalizeContent(entryContent);
 		
-		return dataServices.getCreateDataService().create(createMap);
+		return validateData(entryContent)
+				.flatMap(vs -> vs.isValid() 
+							? dataServices.getCreateDataService().create(createMap)
+							: Mono.error(() -> new ContentValidationException(vs))
+				);
 	}	
 	
 	public Mono<Map<String, Object>> runUpdateById(String id, Map<String, Object> updateMap) {
@@ -62,7 +68,11 @@ public class CollectionService {
 		
 		normalizeContent(entryContent);
 		
-		return dataServices.getUpdateDataService().updateById(id, updateMap);
+		return validateData(entryContent)
+				.flatMap(vs -> vs.isValid() 
+							? dataServices.getUpdateDataService().updateById(id, updateMap)
+							: Mono.error(() -> new ContentValidationException(vs))
+				);
 	}
 	
 	public Mono<Long> runUpdate(Where where, Map<String, Object> updateMap) {
@@ -101,6 +111,14 @@ public class CollectionService {
 	private ValidationStatus validateContent(Set<Entry<String, Object>> content) {
 		return content.stream()
 				.map(ey -> collectionValidator.getFieldsValidators()
+						.get(ey.getKey())
+						.valid(ey.getValue()))
+				.reduce(new ValidationStatus(), ValidationStatus::merge);
+	}
+	
+	private Mono<ValidationStatus> validateData(Set<Entry<String, Object>> content) {
+		return Flux.fromIterable(content)
+				.flatMap(ey -> collectionDataValidator.getFieldsValidators()
 						.get(ey.getKey())
 						.valid(ey.getValue()))
 				.reduce(new ValidationStatus(), ValidationStatus::merge);
