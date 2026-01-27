@@ -1,15 +1,14 @@
 spring:
   application:
     name: gioscito
-
-  data:
-    mongodb:
-      host: ${GIOSCITO_MONGODB_HOST}
-      port: ${GIOSCITO_MONGODB_PORT}
-      database: ${GIOSCITO_MONGODB_DATABASE:gioscito}
-      username: ${GIOSCITO_MONGODB_USER}
-      password: ${GIOSCITO_MONGODB_PASSWORD}
-      authentication-database: ${GIOSCITO_MONGODB_AUTHENTICATION_DATABASE:admin}
+  
+  mongodb:
+    host: ${GIOSCITO_MONGODB_HOST}
+    port: ${GIOSCITO_MONGODB_PORT:27017}
+    database: ${GIOSCITO_MONGODB_DATABASE:gioscito}
+    username: ${GIOSCITO_MONGODB_USER}
+    password: ${GIOSCITO_MONGODB_PASSWORD}
+    authentication-database: ${GIOSCITO_MONGODB_AUTHENTICATION_DATABASE:admin}
 
 gioscito:
   schema:
