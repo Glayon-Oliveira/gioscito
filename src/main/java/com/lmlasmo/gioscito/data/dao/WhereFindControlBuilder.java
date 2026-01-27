@@ -12,13 +12,20 @@ import lombok.RequiredArgsConstructor;
 public class WhereFindControlBuilder {
 	
 	@NonNull private String field;
-	@NonNull private Object value;
+	private final Object value;
 	@NonNull private WhereType type;
 	
-	private Where where;
+	private final Where and;
+	private final Where or;
 	
 	private WhereFindControlBuilder(Where where) {
-		this.where = where;
+		this(
+			where.getField(),
+			where.getValue(),
+			where.getType(),
+			where.and(),
+			where.or()
+			);
 	}
 	
 	public static WhereFindControlBuilder newInstance(String field) {
@@ -30,33 +37,38 @@ public class WhereFindControlBuilder {
 	}
 	
 	public static WhereFindControlBuilder newInstance(String field, WhereType whereType) {
-		if(whereType == null) throw new IllegalArgumentException("Where type cannot be null");
-		
-		return new WhereFindControlBuilder(field, null, whereType != null ? whereType : WhereType.EQUALS);
+		return new WhereFindControlBuilder(
+				field, null,
+				whereType != null ? whereType : WhereType.EQUALS,
+				null, null
+				);
 	}
 	
 	public static WhereFindControlBuilder newInstance(String field, Object value, WhereType whereType) {
-		if(whereType == null) throw new IllegalArgumentException("Where type cannot be null");
-		
-		return new WhereFindControlBuilder(field, null, whereType != null ? whereType : WhereType.EQUALS);
+		return new WhereFindControlBuilder(
+				field, value,
+				whereType != null ? whereType : WhereType.EQUALS,
+				null, null
+				);
 	}
 	
 	public WhereFindControlBuilder withField(String field) {
-		return new WhereFindControlBuilder(field, value, type);
+		return new WhereFindControlBuilder(field, value, type, and, or);
 	}
 	
 	public WhereFindControlBuilder withValue(Object value) {
-		return new WhereFindControlBuilder(field, value, type);
+		return new WhereFindControlBuilder(field, value, type, and, or);
 	}
 	
 	public WhereFindControlBuilder withType(WhereType whereType) {
-		if(whereType == null) throw new IllegalArgumentException("Where type cannot be null");
-		
-		return new WhereFindControlBuilder(field, value, type);
+		return new WhereFindControlBuilder(
+				field, value,
+				whereType != null ? whereType : WhereType.EQUALS,
+				and, or);
 	}
 	
 	public WhereFindControlBuilder withWhere(String field, Object value, WhereType type) {
-		return new WhereFindControlBuilder(new WhereImpl(field, value, type, null, null));
+		return new WhereFindControlBuilder(new WhereImpl(field, value, type, and, or));
 	}
 	
 	public WhereFindControlBuilder withWhere(Where where) {
@@ -65,7 +77,7 @@ public class WhereFindControlBuilder {
 	
 	public WhereFindControlBuilder andWhere(String field, Object value, WhereType type) {
 		Where andWhere = new WhereImpl(field, value, type, null, null);
-		Where where = new WhereImpl(this.where.getField(), this.where.getValue(), this.where.getType(), andWhere, this.where.or());
+		Where where = new WhereImpl(this.field, this.value, this.type, andWhere, this.or);
 		
 		return new WhereFindControlBuilder(where);
 	}
@@ -73,17 +85,18 @@ public class WhereFindControlBuilder {
 	public WhereFindControlBuilder andWhere(Where where) {
 		return new WhereFindControlBuilder(
 				new WhereImpl(
-						this.where.getField(),
-						this.where.getValue(),
-						this.where.getType(),
+						this.field,
+						this.value,
+						this.type,
 						where,
-						this.where.or())
-				); 
+						this.or
+						)
+				);
 	}
 	
 	public WhereFindControlBuilder orWhere(String field, Object value, WhereType type) {
 		Where orWhere = new WhereImpl(field, value, type, null, null);
-		Where where = new WhereImpl(this.where.getField(), this.where.getValue(), this.where.getType(), this.where.or(), orWhere);
+		Where where = new WhereImpl(this.field, this.value, this.type, this.and, orWhere);
 		
 		return new WhereFindControlBuilder(where);
 	}
@@ -91,16 +104,16 @@ public class WhereFindControlBuilder {
 	public WhereFindControlBuilder orWhere(Where where) {
 		return new WhereFindControlBuilder(
 				new WhereImpl(
-						this.where.getField(),
-						this.where.getValue(),
-						this.where.getType(),
-						this.where.and(),
+						this.field,
+						this.value,
+						this.type,
+						this.and,
 						where)
 				); 
 	}
 
 	public Where build() {
-		return this.where;
+		return new WhereImpl(field, value, type, and, or);
 	}
 	
 	@AllArgsConstructor

@@ -1,7 +1,10 @@
 package com.lmlasmo.gioscito.data.dao;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.data.domain.Pageable;
 
@@ -17,11 +20,15 @@ public class FindControlBuilder {
 	private Where where;
 	
 	public static FindControlBuilder newInstance() {
-		return new FindControlBuilder(null, null, null);
+		return new FindControlBuilder(new HashSet<>(), null, null);
 	}
 	
-	public FindControlBuilder includeFields(String... fields) {		
-		return new FindControlBuilder(List.of(fields), pageable, where);
+	public FindControlBuilder includeFields(String... fields) {
+		Set<String> fieldsSet = Stream.of(fields)
+				.distinct()
+				.collect(Collectors.toSet());
+		
+		return new FindControlBuilder(fieldsSet, pageable, where);
 	}
 	
 	public FindControlBuilder withPageable(Pageable pageable) {
