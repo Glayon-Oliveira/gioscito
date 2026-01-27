@@ -2,8 +2,10 @@ package com.lmlasmo.gioscito.service;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.Set;
 
+import com.lmlasmo.gioscito.content.MissingFieldException;
 import com.lmlasmo.gioscito.content.UnsupportedFieldsException;
 import com.lmlasmo.gioscito.content.normalization.schema.CollectionNormalizer;
 import com.lmlasmo.gioscito.content.validation.schema.CollectionValidator;
@@ -14,6 +16,8 @@ import com.lmlasmo.gioscito.data.dao.FindControlBuilder;
 import com.lmlasmo.gioscito.data.dao.Where;
 import com.lmlasmo.gioscito.data.dao.WhereFindControlBuilder;
 import com.lmlasmo.gioscito.data.validation.CollectionDataValidator;
+import com.lmlasmo.gioscito.model.schema.CollectionSchema;
+import com.lmlasmo.gioscito.model.schema.FieldSchema;
 import com.lmlasmo.gioscito.service.data.CollectionDataServiceGroup;
 
 import lombok.EqualsAndHashCode;
@@ -28,7 +32,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class CollectionService {
 	
-	@Getter private final String collectionName;
+	@Getter private final CollectionSchema collection;
 	
 	private final CollectionValidator collectionValidator;
 	private final CollectionDataValidator collectionDataValidator;
@@ -36,8 +40,20 @@ public class CollectionService {
 	private final CollectionDataServiceGroup dataServices;
 	
 	public Mono<Map<String, Object>> runCreate(Map<String, Object> createMap) {
-		if(!collectionValidator.getFieldsValidators().keySet().containsAll(createMap.keySet())) {
-			return Mono.error(() -> new RuntimeException());
+		if(createMap == null) throw new IllegalArgumentException("create map cannot be null");
+		
+		Set<String> createFields = createMap.keySet();
+		String[] missingFields = collection.getFields().stream()
+				.map(FieldSchema::getName)
+				.filter(fn -> !createFields.contains(fn))
+				.toArray(String[]::new);
+		
+		if(missingFields.length > 0) {
+			return Mono.error(() -> new MissingFieldException(missingFields));
+		}
+		
+		if(collection.getFields().size() == createMap.size()) {
+			return Mono.error(() -> new UnsupportedFieldsException("Unssuported fields were provided"));
 		}
 				
 		Set<Entry<String, Object>> entryContent = createMap.entrySet();
@@ -57,18 +73,30 @@ public class CollectionService {
 	}	
 	
 	public Mono<Map<String, Object>> runUpdateById(String id, Map<String, Object> updateMap) {
-		if(!collectionValidator.getFieldsValidators().keySet().containsAll(updateMap.keySet())) {
-			return Mono.error(() -> new RuntimeException());
+		if(id == null) throw new IllegalArgumentException("id cannot be null");
+		if(updateMap == null) throw new IllegalArgumentException("update map cannot be null");
+		
+		Set<String> collectionFields = collection.getFields().stream()
+				.map(FieldSchema::getName)
+				.collect(Collectors.toSet());
+		
+		if(collectionFields.containsAll(updateMap.keySet())) {
+			String delimitedFields = collectionFields.stream()
+					.collect(Collectors.joining(", "));
+			
+			return Mono.error(() -> 
+				new UnsupportedFieldsException("Unssuported fields were provided. The allowed fields are: " + delimitedFields)
+			);
 		}
 				
 		Set<Entry<String, Object>> entryContent = updateMap.entrySet();
+		normalizeContent(entryContent);
+		
 		ValidationStatus validationStatus = validateContent(entryContent);
 		
 		if(!validationStatus.isValid()) {
 			return Mono.error(() -> new ContentValidationException(validationStatus));
 		}
-		
-		normalizeContent(entryContent);
 		
 		return validateData(entryContent)
 				.flatMap(vs -> vs.isValid() 
@@ -78,8 +106,19 @@ public class CollectionService {
 	}
 	
 	public Mono<Long> runUpdate(Where where, Map<String, Object> updateMap) {
-		if(!collectionValidator.getFieldsValidators().keySet().containsAll(updateMap.keySet())) {
-			return Mono.error(() -> new UnsupportedFieldsException("Unssuported fields were provided"));
+		if(updateMap == null) throw new IllegalArgumentException("update map cannot be null");
+		
+		Set<String> collectionFields = collection.getFields().stream()
+				.map(FieldSchema::getName)
+				.collect(Collectors.toSet());
+		
+		if(collectionFields.containsAll(updateMap.keySet())) {
+			String delimitedFields = collectionFields.stream()
+					.collect(Collectors.joining(", "));
+			
+			return Mono.error(() -> 
+				new UnsupportedFieldsException("Unssuported fields were provided. The allowed fields are: " + delimitedFields)
+			);
 		}
 				
 		Set<Entry<String, Object>> entryContent = updateMap.entrySet();
@@ -96,6 +135,8 @@ public class CollectionService {
 	}
 	
 	public Mono<Boolean> runDeleteById(String id) {
+		if(id == null) throw new IllegalArgumentException("id cannot be null");
+		
 		return dataServices.getDeleteDataService().deleteById(id);
 	}
 	
@@ -105,6 +146,8 @@ public class CollectionService {
 	}
 	
 	public Mono<Map<String, Object>> runFindById(String id) {
+		if(id == null) throw new IllegalArgumentException("id cannot be null");
+		
 		return dataServices.getFindDataService().findById(id);
 	}
 	

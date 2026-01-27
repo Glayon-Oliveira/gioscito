@@ -57,7 +57,7 @@ public class ContentDataTest {
         
         ContentProperties.successCreater().forEach((cn, cc) -> {
             CollectionService collectionService = collectionServices.stream()
-                    .filter(cs -> cs.getCollectionName().equals(cn))
+                    .filter(cs -> cs.getCollection().getName().equals(cn))
                     .findFirst()
                     .orElseThrow(() -> new NullPointerException());
 
@@ -83,7 +83,7 @@ public class ContentDataTest {
     public void runFailCreater() {
     	ContentProperties.failCreater().forEach((cn, cc) -> {
             CollectionService collectionService = collectionServices.stream()
-                    .filter(cs -> cs.getCollectionName().equals(cn))
+                    .filter(cs -> cs.getCollection().getName().equals(cn))
                     .findFirst()
                     .orElseThrow(() -> new NullPointerException());
             
@@ -110,7 +110,7 @@ public class ContentDataTest {
     public void runUpdate() {
         ContentProperties.successUpdate().forEach((cn, cc) -> {
             CollectionService collectionService = collectionServices.stream()
-                    .filter(cs -> cs.getCollectionName().equals(cn))
+                    .filter(cs -> cs.getCollection().getName().equals(cn))
                     .findFirst()
                     .orElseThrow(() -> new NullPointerException());
 
