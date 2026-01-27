@@ -10,7 +10,9 @@ import com.lmlasmo.gioscito.content.validation.schema.CollectionValidator;
 import com.lmlasmo.gioscito.content.validation.schema.ContentValidationException;
 import com.lmlasmo.gioscito.content.validation.schema.ValidationStatus;
 import com.lmlasmo.gioscito.data.dao.FindControl;
+import com.lmlasmo.gioscito.data.dao.FindControlBuilder;
 import com.lmlasmo.gioscito.data.dao.Where;
+import com.lmlasmo.gioscito.data.dao.WhereFindControlBuilder;
 import com.lmlasmo.gioscito.data.validation.CollectionDataValidator;
 import com.lmlasmo.gioscito.service.data.CollectionDataServiceGroup;
 
@@ -39,13 +41,13 @@ public class CollectionService {
 		}
 				
 		Set<Entry<String, Object>> entryContent = createMap.entrySet();
+		normalizeContent(entryContent);
+		
 		ValidationStatus validationStatus = validateContent(entryContent);
 		
 		if(!validationStatus.isValid()) {
 			return Mono.error(() -> new ContentValidationException(validationStatus));
 		}
-		
-		normalizeContent(entryContent);
 		
 		return validateData(entryContent)
 				.flatMap(vs -> vs.isValid() 
@@ -81,15 +83,16 @@ public class CollectionService {
 		}
 				
 		Set<Entry<String, Object>> entryContent = updateMap.entrySet();
+		normalizeContent(entryContent);
+		
 		ValidationStatus validationStatus = validateContent(entryContent);
 		
 		if(!validationStatus.isValid()) {
 			return Mono.error(() -> new ContentValidationException(validationStatus));
 		}
 		
-		normalizeContent(entryContent);
-		
-		return dataServices.getUpdateDataService().update(updateMap, where);
+		return Mono.fromCallable(() -> normalizeWhere(where))
+				.flatMap(w -> dataServices.getUpdateDataService().update(updateMap, w));
 	}
 	
 	public Mono<Boolean> runDeleteById(String id) {
@@ -97,7 +100,8 @@ public class CollectionService {
 	}
 	
 	public Mono<Long> runDelete(Where where) {
-		return dataServices.getDeleteDataService().delete(where);
+		return Mono.fromCallable(() -> normalizeWhere(where))
+				.flatMap(dataServices.getDeleteDataService()::delete);
 	}
 	
 	public Mono<Map<String, Object>> runFindById(String id) {
@@ -105,7 +109,13 @@ public class CollectionService {
 	}
 	
 	public Flux<Map<String, Object>> runFind(FindControl findControl) {
-		return dataServices.getFindDataService().find(findControl);
+		FindControlBuilder fcBuilder = FindControl.builder()
+				.withPageable(findControl.getPageable())
+				.includeFields(findControl.getFields().toArray(String[]::new));
+		
+		return Mono.fromCallable(() -> normalizeWhere(findControl.getWhere()))
+				.map(w -> fcBuilder.withWhere(w).build())
+				.flatMapMany(dataServices.getFindDataService()::find);
 	}
 	
 	private ValidationStatus validateContent(Set<Entry<String, Object>> content) {
@@ -114,6 +124,31 @@ public class CollectionService {
 						.get(ey.getKey())
 						.valid(ey.getValue()))
 				.reduce(new ValidationStatus(), ValidationStatus::merge);
+	}
+	
+	private Where normalizeWhere(Where where) throws UnsupportedFieldsException {
+		if(where == null) return null;
+		
+		if(!collectionNormalizer.getFieldNormalizers().keySet().contains(where.getField())) {
+			throw new UnsupportedFieldsException("Unssuported field was provided: " + where.getField());
+		}
+		
+		Object normalized = collectionNormalizer.getFieldNormalizers()
+				.get(where.getField())
+				.normalizer(where.getValue());
+		
+		WhereFindControlBuilder builder = WhereFindControlBuilder
+				.newInstance(where.getField(), normalized, where.getType());
+		
+		if(where.and() != null) {
+			builder.andWhere(normalizeWhere(where.and()));
+		}
+		
+		if(where.or() != null) {
+			builder.orWhere(normalizeWhere(where.or()));
+		}
+		
+		return builder.build();
 	}
 	
 	private Mono<ValidationStatus> validateData(Set<Entry<String, Object>> content) {
