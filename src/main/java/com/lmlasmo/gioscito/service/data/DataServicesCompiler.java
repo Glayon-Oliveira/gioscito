@@ -35,7 +35,7 @@ public class DataServicesCompiler {
 			DeleteDataService deleteDataService = deleteDataFactory.create(c, gdao, fullSchema);
 			
 			dataServiceCollections.add(new CollectionDataServiceGroup(
-					c.getName(),
+					c,
 					createDataService,
 					findDataService,
 					updateDataService,
