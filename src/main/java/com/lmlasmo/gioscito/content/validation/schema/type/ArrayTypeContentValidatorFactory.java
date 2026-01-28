@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.lmlasmo.gioscito.content.validation.schema.FieldContentValidator;
 import com.lmlasmo.gioscito.content.validation.schema.FieldContentValidatorFactoryRegistry;
+import com.lmlasmo.gioscito.content.validation.schema.FieldTypeContentValidator;
 import com.lmlasmo.gioscito.content.validation.schema.ValidationError;
 import com.lmlasmo.gioscito.content.validation.schema.ValidationStatus;
 import com.lmlasmo.gioscito.content.validation.schema.ValidatorFactoryException;
@@ -29,7 +30,7 @@ public class ArrayTypeContentValidatorFactory implements FieldTypeContentValidat
 	private final FieldTypeConstant type = FieldTypeConstant.ARRAY;
 
 	@Override
-	public FieldContentValidator create(FieldSchema field, FullSchema schema, FieldContentValidatorFactoryRegistry factoriesRegistry) {
+	public FieldTypeContentValidator create(FieldSchema field, FullSchema schema, FieldContentValidatorFactoryRegistry factoriesRegistry) {
 		if(field.getType() instanceof ArrayFieldType arrayField) {
 			FieldSchema fakeSubFieldSchema = new FieldSchema(field.getName()+".array", arrayField.getSubType(), field.getProperties());
 			

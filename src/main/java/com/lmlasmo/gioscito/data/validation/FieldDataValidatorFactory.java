@@ -5,8 +5,8 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import com.lmlasmo.gioscito.model.schema.FieldSchema;
 import com.lmlasmo.gioscito.model.schema.FullSchema;
 
-public interface FieldDataValidatorFactory {
+public interface FieldDataValidatorFactory <T extends FieldDataValidator> {
 
-	public FieldDataValidator create(FieldSchema field, FullSchema schema, String collectionName, ReactiveMongoTemplate template, FieldDataValidatorFactoryRegistry factoriesRegistry);
+	public T create(FieldSchema field, FullSchema schema, String collectionName, ReactiveMongoTemplate template, FieldDataValidatorFactoryRegistry factoriesRegistry);
 	
 }

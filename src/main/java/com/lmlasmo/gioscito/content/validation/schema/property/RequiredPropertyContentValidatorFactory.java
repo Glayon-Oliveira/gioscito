@@ -2,8 +2,8 @@ package com.lmlasmo.gioscito.content.validation.schema.property;
 
 import org.springframework.stereotype.Component;
 
-import com.lmlasmo.gioscito.content.validation.schema.FieldContentValidator;
 import com.lmlasmo.gioscito.content.validation.schema.FieldContentValidatorFactoryRegistry;
+import com.lmlasmo.gioscito.content.validation.schema.FieldPropertyContentValidator;
 import com.lmlasmo.gioscito.content.validation.schema.ValidationError;
 import com.lmlasmo.gioscito.content.validation.schema.ValidationStatus;
 import com.lmlasmo.gioscito.model.schema.FieldSchema;
@@ -20,7 +20,7 @@ import lombok.ToString;
 public class RequiredPropertyContentValidatorFactory implements FieldPropertyContentValidatorFactory {
 	
 	@Override
-	public FieldContentValidator create(FieldSchema field, FullSchema fullSchema, FieldContentValidatorFactoryRegistry registry) {
+	public FieldPropertyContentValidator create(FieldSchema field, FullSchema fullSchema, FieldContentValidatorFactoryRegistry registry) {
 		RequiredProperty property = field.getProperties().stream()
 				.filter(RequiredProperty.class::isInstance)
 				.map(RequiredProperty.class::cast)

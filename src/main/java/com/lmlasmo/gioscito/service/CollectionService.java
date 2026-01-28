@@ -8,6 +8,7 @@ import java.util.Set;
 import com.lmlasmo.gioscito.content.MissingFieldException;
 import com.lmlasmo.gioscito.content.UnsupportedFieldsException;
 import com.lmlasmo.gioscito.content.normalization.schema.CollectionNormalizer;
+import com.lmlasmo.gioscito.content.normalization.schema.FieldTypeContentNormalizer;
 import com.lmlasmo.gioscito.content.validation.schema.CollectionValidator;
 import com.lmlasmo.gioscito.content.validation.schema.ContentValidationException;
 import com.lmlasmo.gioscito.content.validation.schema.ValidationStatus;
@@ -172,13 +173,26 @@ public class CollectionService {
 	private Where normalizeWhere(Where where) throws UnsupportedFieldsException {
 		if(where == null) return null;
 		
-		if(!collectionNormalizer.getFieldNormalizers().keySet().contains(where.getField())) {
+		Set<String> fields = collection.getFields().stream()
+				.map(FieldSchema::getName)
+				.collect(Collectors.toSet());
+				
+		if(!fields.contains(where.getField())) {
 			throw new UnsupportedFieldsException("Unssuported field was provided: " + where.getField());
 		}
 		
-		Object normalized = collectionNormalizer.getFieldNormalizers()
+		Set<FieldTypeContentNormalizer> normalizers = collectionNormalizer.getFieldNormalizers()
 				.get(where.getField())
-				.normalizer(where.getValue());
+				.getNormalizers().stream()
+				.filter(FieldTypeContentNormalizer.class::isInstance)
+				.map(FieldTypeContentNormalizer.class::cast)
+				.collect(Collectors.toSet());
+		
+		Object normalized = where.getValue();
+		
+		for(FieldTypeContentNormalizer normalizer: normalizers) {
+			normalized = normalizer.normalize(normalized);
+		}
 		
 		WhereFindControlBuilder builder = WhereFindControlBuilder
 				.newInstance(where.getField(), normalized, where.getType());

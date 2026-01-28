@@ -2,8 +2,8 @@ package com.lmlasmo.gioscito.content.validation.schema.type;
 
 import org.springframework.stereotype.Component;
 
-import com.lmlasmo.gioscito.content.validation.schema.FieldContentValidator;
 import com.lmlasmo.gioscito.content.validation.schema.FieldContentValidatorFactoryRegistry;
+import com.lmlasmo.gioscito.content.validation.schema.FieldTypeContentValidator;
 import com.lmlasmo.gioscito.content.validation.schema.ValidationError;
 import com.lmlasmo.gioscito.content.validation.schema.ValidationStatus;
 import com.lmlasmo.gioscito.content.validation.schema.ValidatorFactoryException;
@@ -23,7 +23,7 @@ public class NumberTypeContentValidatorFactory implements FieldTypeContentValida
 	private final FieldTypeConstant type = FieldTypeConstant.NUMBER;
 
 	@Override
-	public FieldContentValidator create(FieldSchema field, FullSchema schema, FieldContentValidatorFactoryRegistry factoriesRegistry) {
+	public FieldTypeContentValidator create(FieldSchema field, FullSchema schema, FieldContentValidatorFactoryRegistry factoriesRegistry) {
 		if(!(field.getType() instanceof NumberFieldType)) throw new ValidatorFactoryException("Field '" + field.getName() + "' is not '" + FieldTypeConstant.NUMBER + "' but '" + field.getType().getType() +"'");
 		
 		return (value) -> {

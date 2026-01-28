@@ -65,6 +65,7 @@ public class ContentNormalizerCompiler {
 		return fieldNormalizers;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	private Set<FieldContentNormalizer> generateFieldNormalizers(FieldSchema fieldSchema, Set<? extends FieldContentNormalizerFactory> factories) {
 		Set<FieldContentNormalizer> fieldNormalizers = new LinkedHashSet<>();
 		

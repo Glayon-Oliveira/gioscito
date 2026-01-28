@@ -2,7 +2,7 @@ package com.lmlasmo.gioscito.content.normalization.schema.property;
 
 import org.springframework.stereotype.Component;
 
-import com.lmlasmo.gioscito.content.normalization.schema.FieldContentNormalizer;
+import com.lmlasmo.gioscito.content.normalization.schema.FieldPropertyContentNormalizer;
 import com.lmlasmo.gioscito.model.schema.FieldSchema;
 import com.lmlasmo.gioscito.model.schema.field.property.DefaultProperty;
 import com.lmlasmo.gioscito.model.schema.field.property.FieldPropertyType;
@@ -11,7 +11,7 @@ import com.lmlasmo.gioscito.model.schema.field.property.FieldPropertyType;
 public class DefaultPropertyContentNormalizerFactory implements FieldPropertyContentNormalizerFactory {
 
 	@Override
-	public FieldContentNormalizer create(FieldSchema fieldSchema) {
+	public FieldPropertyContentNormalizer create(FieldSchema fieldSchema) {
 		DefaultProperty property = getProperty(fieldSchema);
 				
 		Object defaultValue = property != null ? property.getValue() : null;

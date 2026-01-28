@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import com.lmlasmo.gioscito.content.validation.schema.CompositeFieldValidator;
 import com.lmlasmo.gioscito.content.validation.schema.FieldContentValidator;
 import com.lmlasmo.gioscito.content.validation.schema.FieldContentValidatorFactoryRegistry;
+import com.lmlasmo.gioscito.content.validation.schema.FieldTypeContentValidator;
 import com.lmlasmo.gioscito.content.validation.schema.ValidationError;
 import com.lmlasmo.gioscito.content.validation.schema.ValidationStatus;
 import com.lmlasmo.gioscito.content.validation.schema.ValidatorFactoryException;
@@ -34,7 +35,7 @@ public class StructTypeContentValidatorFactory implements FieldTypeContentValida
 	private final FieldTypeConstant type = FieldTypeConstant.STRUCT;
 
 	@Override
-	public FieldContentValidator create(FieldSchema field, FullSchema fullSchema, FieldContentValidatorFactoryRegistry factoriesRegistry) {
+	public FieldTypeContentValidator create(FieldSchema field, FullSchema fullSchema, FieldContentValidatorFactoryRegistry factoriesRegistry) {
 		if(field.getType() instanceof StructFieldType structField) {
 			StructSchema struct = fullSchema.getStructs().stream()
 					.filter(s -> structField.getStructName().equals(s.getName()))

@@ -2,9 +2,9 @@ package com.lmlasmo.gioscito.content.normalization.schema;
 
 import com.lmlasmo.gioscito.model.schema.FieldSchema;
 
-public interface FieldContentNormalizerFactory {
+public interface FieldContentNormalizerFactory <T extends FieldContentNormalizer> {
 
-	public FieldContentNormalizer create(FieldSchema fieldSchema);
+	public T create(FieldSchema fieldSchema);
 	
 	public boolean supportsField(FieldSchema fieldSchema);
 	

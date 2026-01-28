@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 import com.lmlasmo.gioscito.content.validation.schema.ValidationError;
 import com.lmlasmo.gioscito.content.validation.schema.ValidationStatus;
-import com.lmlasmo.gioscito.data.validation.FieldDataValidator;
 import com.lmlasmo.gioscito.data.validation.FieldDataValidatorFactoryRegistry;
+import com.lmlasmo.gioscito.data.validation.FieldPropertyDataValidator;
 import com.lmlasmo.gioscito.model.schema.FieldSchema;
 import com.lmlasmo.gioscito.model.schema.FullSchema;
 import com.lmlasmo.gioscito.model.schema.field.property.UniqueProperty;
@@ -23,7 +23,7 @@ import reactor.core.publisher.Mono;
 public class UniquePropertyDataValidator implements FieldPropertyDataValidatorFactory {	
 	
 	@Override
-	public FieldDataValidator create(FieldSchema field, FullSchema fullSchema, String collectionName,
+	public FieldPropertyDataValidator create(FieldSchema field, FullSchema fullSchema, String collectionName,
 			ReactiveMongoTemplate template, FieldDataValidatorFactoryRegistry fieldFactoryRegistry) {
 		
 		String fieldName = field.getName();

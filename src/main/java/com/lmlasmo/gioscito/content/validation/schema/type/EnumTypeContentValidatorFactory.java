@@ -2,8 +2,8 @@ package com.lmlasmo.gioscito.content.validation.schema.type;
 
 import org.springframework.stereotype.Component;
 
-import com.lmlasmo.gioscito.content.validation.schema.FieldContentValidator;
 import com.lmlasmo.gioscito.content.validation.schema.FieldContentValidatorFactoryRegistry;
+import com.lmlasmo.gioscito.content.validation.schema.FieldTypeContentValidator;
 import com.lmlasmo.gioscito.content.validation.schema.ValidationError;
 import com.lmlasmo.gioscito.content.validation.schema.ValidationStatus;
 import com.lmlasmo.gioscito.content.validation.schema.ValidatorFactoryException;
@@ -21,7 +21,7 @@ import lombok.ToString;
 public class EnumTypeContentValidatorFactory implements FieldTypeContentValidatorFactory {
 
 	@Override
-	public FieldContentValidator create(FieldSchema field, FullSchema fullSchema, FieldContentValidatorFactoryRegistry registry) {
+	public FieldTypeContentValidator create(FieldSchema field, FullSchema fullSchema, FieldContentValidatorFactoryRegistry registry) {
 		if(field.getType() instanceof EnumFieldType enumField) {
 			return (value) -> {
 				if(enumField.getValues().contains(value)) {

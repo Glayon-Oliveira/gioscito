@@ -2,7 +2,7 @@ package com.lmlasmo.gioscito.content.validation.schema.property.constraint;
 
 import org.springframework.stereotype.Component;
 
-import com.lmlasmo.gioscito.content.validation.schema.FieldContentValidator;
+import com.lmlasmo.gioscito.content.validation.schema.FieldConstraintContentValidator;
 import com.lmlasmo.gioscito.content.validation.schema.FieldContentValidatorFactoryRegistry;
 import com.lmlasmo.gioscito.content.validation.schema.ValidationError;
 import com.lmlasmo.gioscito.content.validation.schema.ValidationStatus;
@@ -21,7 +21,7 @@ import lombok.ToString;
 public class MaxConstraintContentValidatorFactory implements FieldConstraintContentValidatorFactory {
 
 	@Override
-	public FieldContentValidator create(FieldSchema field, FullSchema fullSchema, FieldContentValidatorFactoryRegistry registry) {
+	public FieldConstraintContentValidator create(FieldSchema field, FullSchema fullSchema, FieldContentValidatorFactoryRegistry registry) {
 		FieldConstraint constraint = getCompatibleConstraint(field, MaxFieldConstraint.class);
 		
 		return (value) -> {

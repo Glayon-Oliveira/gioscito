@@ -14,6 +14,7 @@ import com.lmlasmo.gioscito.content.validation.schema.ValidatorFactoryException;
 import com.lmlasmo.gioscito.data.validation.CompositeFieldDataValidator;
 import com.lmlasmo.gioscito.data.validation.FieldDataValidator;
 import com.lmlasmo.gioscito.data.validation.FieldDataValidatorFactoryRegistry;
+import com.lmlasmo.gioscito.data.validation.FieldTypeDataValidator;
 import com.lmlasmo.gioscito.model.schema.FieldSchema;
 import com.lmlasmo.gioscito.model.schema.FullSchema;
 import com.lmlasmo.gioscito.model.schema.StructSchema;
@@ -37,7 +38,7 @@ public class StructTypeDataValidatorFactory implements FieldTypeDataValidatorFac
 	private final FieldTypeConstant type = FieldTypeConstant.STRUCT;
 	
 	@Override
-	public FieldDataValidator create(FieldSchema field, FullSchema schema, String collectionName,
+	public FieldTypeDataValidator create(FieldSchema field, FullSchema schema, String collectionName,
 			ReactiveMongoTemplate template, FieldDataValidatorFactoryRegistry factoriesRegistry) {
 		
 		if(field.getType() instanceof StructFieldType structField) {

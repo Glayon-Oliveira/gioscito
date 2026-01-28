@@ -3,10 +3,12 @@ package com.lmlasmo.gioscito.content.validation.schema;
 import java.util.Set;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+@Getter
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor

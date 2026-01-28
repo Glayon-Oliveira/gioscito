@@ -3,9 +3,11 @@ package com.lmlasmo.gioscito.content.normalization.schema;
 import java.util.Set;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+@Getter
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
